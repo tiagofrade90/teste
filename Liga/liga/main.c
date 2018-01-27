@@ -22,8 +22,15 @@ struct campeonato {
     int golosFora2;
 } c[MAX_Jornadas];
 
+//Variaveis globais
+FILE *f;
+int equipasIntroduzidas = 0;
+
 
 // declarações de funções
+void introduzirEquipas();
+void editarEquipas();
+void imprimirHistorico();
 void menu_campeonato();
 void definirJornadas();
 void imprimirResultados(int jornada);
@@ -34,58 +41,22 @@ void imprimirMenu2();
 void Classificacao(int i);
 
 int main() {
-    FILE *f;
-    int menu=1;
-    int equipasIntroduzidas = 0;
+
+    int menu=1;    
     int wordCount = 0, i;
-    int edit;
-    
+
     do {
         imprimirMenu1();
         scanf("%d", &menu);
         switch(menu) {
             case 1:
                 //ciclo para introduzir as equipas 
-                for(i=0; i<4; ++i){                  
-                    printf("Introduza a equipa %d\n", i+1);
-                    printf("Nome: ");
-                    scanf("%s",e[i].nome);
-                    //gets(e[i].nome);
-                    e[i].pontos = 0;
-                }
-                // abrir o ficheiro para guardar as equipas introduzidas no ciclo anterior
-                f = fopen("equipas.txt","w");
-                for(i=0; i<4; i++) {
-                    fprintf(f,"%s\n", e[i].nome);
-                }
-                fclose(f);
-                equipasIntroduzidas = 1;
+                introduzirEquipas();
                 break;
                 
             case 2:
                 //caso onde é possivel ao utilizador modificar as equipas
-                if (equipasIntroduzidas == 1) {
-                    for(i=0; i<4; ++i) {
-                        printf("Equipa: %d\n", i+1);
-                        printf("Name: ");
-                        puts(e[i].nome);
-                    }
-                    printf("\nEscolha o numero da equipa que pretende editar: ");
-                    scanf("%d", &edit);
-                    
-                    if(edit == 1 || edit == 2 || edit == 3 ||edit == 4)
-                    {
-                        printf("\nIntroduza o novo nome para a equipa: ");
-                        scanf("%s",e[edit-1].nome);
-                    }                    
-                    else
-                    {
-                        printf("\nA opcao que introduziu nao e valido!\n\n\n");
-                    }
-                    
-                } else {
-                    printf("Ainda nao foram introduzidas equipas!\n");
-                }
+                editarEquipas();
                 break;
                 
             case 3:
@@ -100,17 +71,7 @@ int main() {
                 
             case 4:
                 //caso onde é possivel ir buscar equipas já anteriormente armazenadas
-                f=fopen("equipas.txt","r");
-                if (f == NULL) {
-                    printf("O ficheiro ainda nao esta diponivel!\n");
-                    break;
-                }  
-                while(!feof(f)) {
-                    fscanf(f, "%s", e[wordCount].nome);
-                    wordCount++;
-                }
-                equipasIntroduzidas = 1;
-                fclose(f);
+                imprimirHistorico();
                 break;
                 
             case 0:
@@ -125,7 +86,7 @@ int main() {
 //funcao onde é iniciado a segunda parte do programa
 void menu_campeonato() {
     int menu2 = 1;
-    int jornada = 6;
+    int jornada = 0;
     int creditos = 40;
     int aposta = 0;
     int i;
@@ -284,6 +245,69 @@ void menu_campeonato() {
                 printf("Digite uma opcao valida!\n"); 
         }
     } while(menu2 != 0);
+}
+
+void introduzirEquipas() {
+    int i;
+    for (i = 0; i < 4; ++i) {
+        printf("Introduza a equipa %d\n", i + 1);
+        printf("Nome: ");
+        scanf("%s", e[i].nome);
+        //gets(e[i].nome);
+        e[i].pontos = 0;
+    }
+    // abrir o ficheiro para guardar as equipas introduzidas no ciclo anterior
+    f = fopen("equipas.txt", "w");
+    for (i = 0; i < 4; i++) {
+        fprintf(f, "%s\n", e[i].nome);
+    }
+    fclose(f);
+    equipasIntroduzidas = 1;
+}
+
+void editarEquipas() {
+    int edit, i;
+    
+    if (equipasIntroduzidas == 1) {
+        for (i = 0; i < 4; ++i) {
+            printf("Equipa: %d\n", i + 1);
+            printf("Name: ");
+            puts(e[i].nome);
+        }
+        printf("\nEscolha o numero da equipa que pretende editar: ");
+        scanf("%d", &edit);
+
+        if (edit == 1 || edit == 2 || edit == 3 || edit == 4) {
+            printf("\nIntroduza o novo nome para a equipa: ");
+            scanf("%s", e[edit - 1].nome);
+        }
+        else {
+            printf("\nA opcao que introduziu nao e valido!\n\n\n");
+        }
+
+    } else {
+        printf("Ainda nao foram introduzidas equipas!\n");
+    }
+}
+
+void imprimirHistorico() {
+    int wordCount;
+    
+    f = fopen("equipas.txt", "r");
+    
+    if (f == NULL) {
+        printf("O ficheiro ainda nao esta diponivel!\n");
+        //break;
+    }
+    
+    else{
+        while (!feof(f)) {
+            fscanf(f, "%s", e[wordCount].nome);
+            wordCount++;
+        }
+        equipasIntroduzidas = 1;
+    }
+    fclose(f);
 }
 
 //função onde são definas as jornadas
